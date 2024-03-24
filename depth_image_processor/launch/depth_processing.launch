@@ -1,0 +1,14 @@
+<launch>
+
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch"/>
+    <!-- Node for processing the depth image and publishing the binarized image -->
+    <node name="depth_image_processor" pkg="depth_image_processor" type="depth_processor.py" output="screen">
+    </node>
+
+    <!-- Node for overlaying images based on the binarized depth image -->
+    <node name="image_overlay_processor" pkg="depth_image_processor" type="image_overlay_processor.py" output="screen">
+    </node>
+
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find depth_image_processor)/rviz/risd.rviz" />
+</launch>
+
