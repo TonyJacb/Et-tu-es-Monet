@@ -21,8 +21,26 @@ class DepthImageProcessor:
             cv_image = cv2.flip(cv_image,1)
             # print(cv_image.shape)
             # Apply thresholding based on original depth values
-            threshold_value = 160  # Adjust this value based on your depth sensor's range and your requirements
+            threshold_value = 80  # Adjust this value based on your depth sensor's range and your requirements
             thresholded_image = cv2.threshold(cv_image, threshold_value, 255, cv2.THRESH_BINARY)[1]
+
+            max_depth_value = 2000
+            hist = cv2.calcHist([cv_image], [0], None, [256], [0, max_depth_value])
+
+            # Normalize the histogram to fit the histImage height
+            hist_height = 300  # Height of the histogram image
+            #hist = cv2.normalize(hist, hist, 0, hist_height, cv2.NORM_MINMAX)
+
+            # Create an image to display the histogram
+            histImage = np.zeros((hist_height, 256, 3), dtype=np.uint8)
+
+            # Populate the histogram image with lines for each bin
+            for i in range(1, 256):
+                cv2.line(histImage, (i-1, hist_height - int(np.round(hist[i-1]))), 
+                        (i, hist_height - int(np.round(hist[i]))), (255, 255, 255), 2)
+
+            # cv2.imshow("Histogram", histImage)
+            # cv2.waitKey(1)
 
             # Optionally, normalize the thresholded image for visualization
             # This step makes it easier to visualize the binary mask resulting from thresholding
@@ -35,7 +53,7 @@ class DepthImageProcessor:
             except CvBridgeError as e:
                 rospy.logerr(e)
 
-            resized_image = cv2.resize(thresholded_image_normalized, (1280, 720))
+            # resized_image = cv2.resize(thresholded_image_normalized, (1280, 720))
             # cv2.imshow("Thresholded and Normalized Image", resized_image)
             # cv2.waitKey(1)
 
